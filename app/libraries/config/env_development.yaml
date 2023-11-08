@@ -1,0 +1,17 @@
+app:
+  name: "Crud golang boostrap"
+  port: 3000
+  secret: "MejiKuHibiNiue2023Oye"
+
+database:
+  host: "127.0.0.1"
+  port: 3306
+  db_name: "testing_crud"
+  user: "root"
+  pwd: ""
+
+email:
+  host: "smtp.gmail.com"
+  port: 587
+  from: "emailanda@gmail.com"
+  pass: 
