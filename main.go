@@ -31,7 +31,7 @@ func main() {
 		},
 	}))
 
-	db := database.ConnectMYSQL()
+	db := database.ConnectPostgres()
 
 	app.Get("api/v1/", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{

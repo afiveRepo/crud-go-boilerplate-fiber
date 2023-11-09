@@ -5,10 +5,10 @@ app:
 
 database:
   host: "127.0.0.1"
-  port: 3306
-  db_name: "testing_crud"
-  user: "root"
-  pwd: ""
+  port: 6500
+  dbname: "testing_crud"
+  user: "postgres"
+  pwd: "password123"
 
 email:
   host: "smtp.gmail.com"
