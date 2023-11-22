@@ -2,7 +2,7 @@ package main
 
 import (
 	"crud-go-boilerplate-fiber/app/libraries/database"
-	"crud-go-boilerplate-fiber/server"
+	"crud-go-boilerplate-fiber/app"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
