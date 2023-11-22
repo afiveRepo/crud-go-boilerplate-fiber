@@ -1,8 +1,6 @@
 package services
 
 import (
-	"crud-go-boilerplate-fiber/app/helper"
-	"crud-go-boilerplate-fiber/app/libraries/mail"
 	"crud-go-boilerplate-fiber/app/libraries/middleware"
 	"crud-go-boilerplate-fiber/app/models/entities"
 	"crud-go-boilerplate-fiber/app/models/requests"
@@ -11,6 +9,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -33,11 +32,14 @@ func NewUserService(
 }
 func (s *userService) Create(req requests.UserRequest) (*responses.UsersResponse, error) {
 	uid := uuid.New().String()
-	password, _ := helper.GetAESEncrypted(req.Password)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
 	newUser := entities.User{
 		Uid:         uid,
 		Email:       req.Email,
-		Password:    password,
+		Password:    string(hashedPassword),
 		Fullname:    req.Fullname,
 		PhoneNumber: req.PhoneNumber,
 	}
@@ -51,14 +53,14 @@ func (s *userService) Create(req requests.UserRequest) (*responses.UsersResponse
 		tx.Rollback()
 		return nil, err
 	}
-	to := []string{
-		user.Email,
-	}
-	errSend := mail.SendEmail(to, nil, "testing", "hallo gasa")
-	if errSend != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	// to := []string{
+	// 	user.Email,
+	// }
+	// errSend := mail.SendEmail(to, nil, "testing", "hallo gasa")
+	// if errSend != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
 	tx.Commit()
 	result := responses.UsersResponse{
 		Fullname: user.Fullname,
@@ -69,14 +71,14 @@ func (s *userService) Create(req requests.UserRequest) (*responses.UsersResponse
 }
 func (s *userService) Login(req requests.UserLoginRequest) (*responses.UsersResponse, error) {
 
-	password, _ := helper.GetAESEncrypted(req.Password)
 	user, err := s.user.FindbyEmail(req.Email)
 	if err != nil {
 		return nil, err
 	}
-	if user.Password != password {
-		errs := errors.New("wrong password")
-		return nil, errs
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		err := errors.New("Password does not match")
+		return nil, err
 	}
 	token, err := middleware.GenerateToken(user.ID)
 	if err != nil {
