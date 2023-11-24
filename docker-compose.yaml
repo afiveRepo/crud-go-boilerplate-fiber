@@ -1,0 +1,26 @@
+version: '3'
+services:
+  rekonbank:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - DATABASE.HOST=${DATABASE.HOST}
+      - DATABASE.PORT=${DATABASE.PORT}
+      - DATABASE.USERNAME=${DATABASE.USERNAME}
+      - DATABASE.PASSWORD=${DATABASE.PASSWORD}
+    volumes:
+      - ./app/libraries/config/env_development.yaml:/app/libraries/config/env_development.yaml
+    links:
+      - redis
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
+    restart: always
+    entrypoint: redis-server --appendonly yes --requirepass $REDIS_PASSWORD --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - 6379:6379
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
